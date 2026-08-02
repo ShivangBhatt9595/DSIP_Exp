@@ -1,0 +1,82 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+#---------------------------------------------------------Q1-------------------------------------
+    # n = np.arange(-3,7)
+
+    # x = np.where(n % 2 == 0, 3, 2)
+
+    # plt.stem(n,x)
+    # plt.grid()
+    # plt.xlabel("n")
+    # plt.ylabel("x[n]")
+    # plt.title("Signal 1")
+    # plt.show()
+
+
+#--------------------------------------------------------Q2--------------------------------------
+
+# n = np.arange(0,7)
+
+# x = [1,2,3,3,2,1,0]
+
+# plt.stem(n,x)
+# plt.grid(True)
+# plt.xlabel("n")
+# plt.ylabel("x[n]")
+# plt.title("Signal 2")
+# plt.show()
+
+
+#--------------------------------------------------------Q3-------------------------------------
+
+
+# n = np.arange(-2,3)
+
+# x = np.zeros(len(n))
+
+# x[n < -1] = -2
+# x[(n >= -1) & (n <= 1)] = 2 * n[(n >= -1) & (n <= 1)]
+# x[n > 1] = 2 
+
+# plt.stem(n,x)
+# plt.grid(True)
+# plt.xlabel("n")
+# plt.ylabel("x[n]")
+# plt.title("Signal 3")
+# plt.show()
+
+
+#-----------------------------------------------------Q4----------------------------------------
+
+# def u(n):
+#     return np.where(n >= 0, 1, 0)
+
+# n = np.arange(-2,11)
+
+# x = u(n) - u(n - 3) - 5*u(n - 7)
+
+# plt.stem(n,x)
+# plt.grid(True)
+# plt.xlabel("n")
+# plt.ylabel("x[n]")
+# plt.title("Signal 4")
+# plt.show()
+
+
+#-----------------------------------------------------Q5----------------------------------------
+
+# def delta(n):
+#     return np.where(n == 0, 1, 0)
+
+# n = np.arange(-2,7)
+
+# x = delta(n) + 3*delta(n-1) + 5*delta(n+1)
+
+# plt.stem(n,x)
+# plt.grid(True)
+# plt.xlabel("n")
+# plt.ylabel("x[n]")
+# plt.title("Signal 5")
+# plt.show()
