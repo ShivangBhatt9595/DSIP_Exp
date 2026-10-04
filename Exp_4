@@ -1,0 +1,236 @@
+#import numpy as np
+#import matplotlib.pyplot as plt
+#from scipy.signal import butter, bilinear, freqz, cheby1, lfilter
+# def design_butterworth_filter(filter_order, cutoff_frequency, sampling_frequency):
+#     # Design the analog Butterworth filter
+#     analog_b, analog_a = butter(filter_order, cutoff_frequency, analog=True, btype='low')
+#     # Perform the bilinear transformation
+#     digital_b, digital_a = bilinear(analog_b, analog_a, sampling_frequency)
+#     return digital_b, digital_a
+
+# def design_chebyshev_filter(filter_order, cutoff_frequency, sampling_frequency, ripple):
+#     # Design the analog Chebyshev filter
+#     analog_b, analog_a = cheby1(filter_order, ripple, cutoff_frequency, analog=True, btype='low')
+#     # Perform the bilinear transformation
+#     digital_b, digital_a = bilinear(analog_b, analog_a, sampling_frequency)
+#     return digital_b, digital_a
+# def plot_filter_response(digital_b, digital_a, sampling_frequency):
+#     # Compute the frequency response of the filter
+#     frequency, magnitude_response = freqz(digital_b, digital_a, fs=sampling_frequency)
+#     # Plot the magnitude response
+#     plt.figure(figsize=(10, 6))
+#     plt.plot(frequency, np.abs(magnitude_response))
+#     plt.title('Filter Magnitude Response')
+#     plt.xlabel('Frequency (Hz)')
+#     plt.ylabel('Magnitude')
+#     plt.grid(True)
+#     plt.show()
+#     # Compute the impulse response of the filter
+#     _, impulse_response = freqz(digital_b, digital_a, fs=sampling_frequency, worN=4096)
+#     # Plot the impulse response
+#     plt.figure(figsize=(10, 6))
+#     plt.plot(impulse_response)
+#     plt.title('Filter Impulse Response')
+#     plt.xlabel('Samples')
+#     plt.ylabel('Amplitude')
+#     plt.grid(True)
+#     plt.show()
+# # Specify the desired filter specifications
+# filter_order = 4  # Filter order
+# cutoff_frequency = 1000  # Cutoff frequency in Hz
+# sampling_frequency = 8000  # Sampling frequency in Hz
+# ripple = 0.5  # Ripple factor for Chebyshev filter
+# # Design the Butterworth filter
+# digital_b, digital_a = design_butterworth_filter(filter_order, cutoff_frequency, sampling_frequency)
+# # Plot the Butterworth filter's magnitude response and impulse response
+# plot_filter_response(digital_b, digital_a, sampling_frequency)
+# # Design the Chebyshev filter
+# digital_b, digital_a = design_chebyshev_filter(filter_order, cutoff_frequency, sampling_frequency, ripple)
+# # Plot the Chebyshev filter's magnitude response and impulse response
+# plot_filter_response(digital_b, digital_a, sampling_frequency)
+# # Save the filter coefficients (optional)
+# filter_path = 'filter_coefficients.txt'
+# np.savetxt(filter_path, np.vstack((digital_b, digital_a)), delimiter=',')
+# print(f"Filter coefficients saved at: {filter_path}")
+
+
+
+#################################################################### Additional Task ####################################################################
+### 1) Generate Singals
+# Generate discrete sine waves
+# sampling_frequency = 8000
+# frequencies = [1000, 2000, 3000, 4000]
+# duration = 0.005
+# n = np.arange(int(sampling_frequency * duration))
+# t = n / sampling_frequency
+# # Plot all sine waves
+# plt.figure(figsize=(10, 8))
+# for i, f in enumerate(frequencies):
+#     sine_wave = np.sin(2 * np.pi * f * t)
+#     plt.subplot(4, 1, i + 1)
+#     plt.stem(n, sine_wave)
+#     plt.title(f"Discrete Sine Wave of {f/1000:.0f} KHz")
+#     plt.xlabel("Samples")
+#     plt.ylabel("Amplitude")
+#     plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+# # Plot all sine waves together
+# plt.figure(figsize=(10, 5))
+# for f in frequencies:
+#     sine_wave = np.sin(2 * np.pi * f * t)
+#     plt.plot(t * 1000, sine_wave, label=f"{f/1000:.0f} KHz")
+# plt.title("Discrete Sine Waves of Different Frequencies")
+# plt.xlabel("Time (ms)")
+# plt.ylabel("Amplitude")
+# plt.legend()
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+
+
+### 2)Add Those Signals
+
+# Generate and add four discrete sine waves
+# sampling_frequency = 8000
+# frequencies = [1000, 2000, 3000, 4000]
+# duration = 0.005
+# n = np.arange(int(sampling_frequency * duration))
+# t = n / sampling_frequency
+# # Generate individual sine waves
+# sine_waves = []
+# for f in frequencies:
+#     sine_wave = np.sin(2 * np.pi * f * t)
+#     sine_waves.append(sine_wave)
+# # Add all four signals
+# combined_signal = np.sum(sine_waves, axis=0)
+# # Plot combined signal in time domain
+# plt.figure(figsize=(10, 5))
+# plt.stem(n, combined_signal)
+# plt.title("Combined Signal in Time Domain")
+# plt.xlabel("Samples")
+# plt.ylabel("Amplitude")
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+# # Compute FFT of combined signal
+# fft_result = np.fft.fft(combined_signal)
+# magnitude_spectrum = np.abs(fft_result)
+# frequency_axis = np.fft.fftfreq(len(combined_signal), 1/sampling_frequency)
+# # Plot single-sided frequency spectrum
+# positive_indices = frequency_axis >= 0
+# plt.figure(figsize=(10, 5))
+# plt.stem(frequency_axis[positive_indices],
+#          magnitude_spectrum[positive_indices])
+# plt.title("Combined Signal in Frequency Domain")
+# plt.xlabel("Frequency (Hz)")
+# plt.ylabel("Magnitude")
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+
+
+### 3) Butterworth Digital Filter 
+# Generate combined signal
+# sampling_frequency = 8000
+# frequencies = [1000, 2000, 3000, 4000]
+# duration = 0.005
+# n = np.arange(int(sampling_frequency * duration))
+# t = n / sampling_frequency
+# sine_waves = [np.sin(2 * np.pi * f * t) for f in frequencies]
+# combined_signal = np.sum(sine_waves, axis=0)
+
+# # Design Butterworth digital low-pass filter
+# filter_order = 4
+# cutoff_frequency = 2000
+# sampling_frequency = 8000
+# digital_b, digital_a = butter(
+#     filter_order,
+#     cutoff_frequency,
+#     btype='low',
+#     fs=sampling_frequency
+# )
+# # Pass combined signal through the filter
+# from scipy.signal import lfilter
+# filtered_signal = lfilter(digital_b, digital_a, combined_signal)
+# # Plot filtered output in time domain
+# plt.figure(figsize=(10, 5))
+# plt.stem(n, filtered_signal)
+# plt.title("Filtered Signal in Time Domain (Butterworth)")
+# plt.xlabel("Samples")
+# plt.ylabel("Amplitude")
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+# # Compute FFT of filtered signal
+# filtered_fft = np.fft.fft(filtered_signal)
+# filtered_magnitude = np.abs(filtered_fft)
+# frequency_axis = np.fft.fftfreq(len(filtered_signal), 1/sampling_frequency)
+# # Plot filtered output in frequency domain
+# positive_indices = frequency_axis >= 0
+# plt.figure(figsize=(10, 5))
+# plt.stem(frequency_axis[positive_indices],
+#          filtered_magnitude[positive_indices])
+# plt.title("Filtered Signal in Frequency Domain")
+# plt.xlabel("Frequency (Hz)")
+# plt.ylabel("Magnitude")
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+# # Display filter coefficients
+# print("Butterworth Filter Coefficients")
+# print("Numerator (b):", digital_b)
+# print("Denominator (a):", digital_a)
+
+### 4) Chebyshev Filter
+
+# Generate four sine waves
+# sampling_frequency = 8000
+# frequencies = [1000, 2000, 3000, 4000]
+# duration = 0.005
+# n = np.arange(int(sampling_frequency * duration))
+# t = n / sampling_frequency
+# # Add all four signals
+# combined_signal = np.zeros(len(n))
+# for f in frequencies:
+#     combined_signal += np.sin(2 * np.pi * f * t)
+# # Design Chebyshev Type-I digital low-pass filter
+# filter_order = 4
+# cutoff_frequency = 3000
+# ripple = 0.5
+# digital_b, digital_a = cheby1(
+#     filter_order,
+#     ripple,
+#     cutoff_frequency,
+#     btype='low',
+#     fs=sampling_frequency
+# )
+# # Filter the combined signal
+# filtered_signal = lfilter(digital_b, digital_a, combined_signal)
+# # Plot output in time domain
+# plt.figure(figsize=(10, 5))
+# plt.stem(n, filtered_signal)
+# plt.title("Chebyshev Filter Output in Time Domain")
+# plt.xlabel("Samples")
+# plt.ylabel("Amplitude")
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+# # Compute FFT of filtered signal
+# filtered_fft = np.fft.fft(filtered_signal)
+# filtered_magnitude = np.abs(filtered_fft)
+# frequency_axis = np.fft.fftfreq(len(filtered_signal), 1/sampling_frequency)
+# # Plot output in frequency domain
+# positive_indices = frequency_axis >= 0
+# plt.figure(figsize=(10, 5))
+# plt.stem(frequency_axis[positive_indices],
+#          filtered_magnitude[positive_indices])
+# plt.title("Chebyshev Filter Output in Frequency Domain")
+# plt.xlabel("Frequency (Hz)")
+# plt.ylabel("Magnitude")
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+# # Display filter coefficients
+# print("Numerator (b):", digital_b)
+# print("Denominator (a):", digital_a)
