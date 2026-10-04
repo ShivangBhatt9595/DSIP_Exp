@@ -1,0 +1,177 @@
+#----------------------------------------Q-1----------------------------------------#
+
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+# -----------------------------------
+# IMAGE 1 - Noisy Image
+# -----------------------------------
+
+img1 = cv2.imread(
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\OEP 9\Picture1.png"
+)
+
+# Smoothing
+img1_mean = cv2.blur(img1, (5, 5))
+img1_gaussian = cv2.GaussianBlur(img1, (5, 5), 0)
+img1_median = cv2.medianBlur(img1, 5)
+
+# Sharpening
+kernel = np.array([
+    [0, -1, 0],
+    [-1, 5, -1],
+    [0, -1, 0]
+], dtype=np.float32)
+
+img1_sharp = cv2.filter2D(img1_median, -1, kernel)
+
+
+# -----------------------------------
+# IMAGE 2 - Noisy X-ray Image
+# -----------------------------------
+
+img2 = cv2.imread(
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\OEP 9\Picture2.png"
+)
+
+# Smoothing
+img2_mean = cv2.blur(img2, (5, 5))
+img2_gaussian = cv2.GaussianBlur(img2, (5, 5), 0)
+img2_median = cv2.medianBlur(img2, 5)
+
+# Sharpening
+img2_sharp = cv2.filter2D(img2_median, -1, kernel)
+
+
+# -----------------------------------
+# IMAGE 3 - City Image
+# -----------------------------------
+
+img3 = cv2.imread(
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\OEP 9\Picture3.png"
+)
+
+# Gaussian smoothing
+img3_smooth = cv2.GaussianBlur(img3, (3, 3), 0)
+
+# Unsharp masking
+img3_sharp = cv2.addWeighted(
+    img3, 1.8,
+    img3_smooth, -0.8,
+    0
+)
+
+
+# -----------------------------------
+# IMAGE 4 - Blurred Building
+# -----------------------------------
+
+img4 = cv2.imread(
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\OEP 9\Picture4.png"
+)
+
+# Gaussian smoothing
+img4_smooth = cv2.GaussianBlur(img4, (3, 3), 0)
+
+# Unsharp masking
+img4_sharp = cv2.addWeighted(
+    img4, 2.0,
+    img4_smooth, -1.0,
+    0
+)
+
+
+# -----------------------------------
+# IMAGE 5 - Highly Blurred Image
+# -----------------------------------
+
+img5 = cv2.imread(
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\OEP 9\Picture5.png"
+)
+
+# Gaussian smoothing
+blur5 = cv2.GaussianBlur(img5, (5, 5), 0)
+
+# Unsharp masking
+img5_sharp = cv2.addWeighted(
+    img5, 2.0,
+    blur5, -1.0,
+    0
+)
+
+
+# -----------------------------------
+# DISPLAY FUNCTION
+# -----------------------------------
+
+def show_results(title, original, results, names):
+
+    plt.figure(figsize=(15, 8))
+
+    # Original
+    plt.subplot(2, 3, 1)
+    plt.imshow(cv2.cvtColor(original, cv2.COLOR_BGR2RGB))
+    plt.title("Original")
+    plt.axis("off")
+
+    # Filtered results
+    for i in range(len(results)):
+        plt.subplot(2, 3, i + 2)
+
+        result = results[i]
+
+        if len(result.shape) == 2:
+            plt.imshow(result, cmap="gray")
+        else:
+            plt.imshow(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+
+        plt.title(names[i])
+        plt.axis("off")
+
+    plt.suptitle(title)
+    plt.tight_layout()
+    plt.show()
+
+
+# -----------------------------------
+# DISPLAY RESULTS
+# -----------------------------------
+
+show_results(
+    "Image 1 - Noisy Image",
+    img1,
+    [img1_mean, img1_gaussian, img1_median, img1_sharp],
+    ["Mean Filter", "Gaussian Filter", "Median Filter",
+     "Median + Sharpening"]
+)
+
+show_results(
+    "Image 2 - Noisy X-ray Image",
+    img2,
+    [img2_mean, img2_gaussian, img2_median, img2_sharp],
+    ["Mean Filter", "Gaussian Filter", "Median Filter",
+     "Median + Sharpening"]
+)
+
+show_results(
+    "Image 3 - City Image",
+    img3,
+    [img3_smooth, img3_sharp],
+    ["Gaussian Smoothing", "Unsharp Masking"]
+)
+
+show_results(
+    "Image 4 - Blurred Building",
+    img4,
+    [img4_smooth, img4_sharp],
+    ["Gaussian Smoothing", "Unsharp Masking"]
+)
+
+show_results(
+    "Image 5 - Highly Blurred Image",
+    img5,
+    [blur5, img5_sharp],
+    ["Gaussian Smoothing", "Unsharp Masking"]
+)
