@@ -1,0 +1,107 @@
+# import cv2
+# import numpy as np
+# # Load image
+# image = cv2.imread(r"E:\Marwadi\B.Tech\SEM 5\DSIP\Lab Manual\test.jpeg")
+# if image is None:
+#     print("Image not found!")
+#     exit()
+# # Gaussian kernel
+# kernel_size = (5, 5)
+# sigma = 1.5
+# gaussian_kernel = cv2.getGaussianKernel(5, sigma)
+# gaussian_kernel = np.outer(gaussian_kernel, gaussian_kernel)
+# # Gaussian smoothing
+# smoothed_image = cv2.filter2D(
+#     image, cv2.CV_32F, gaussian_kernel
+# )
+# # Convert back safely
+# smoothed_image = np.clip(smoothed_image, 0, 255).astype(np.uint8)
+# # Sharpening kernel
+# sharpening_kernel = np.array([
+#     [-1, -1, -1],
+#     [-1,  9, -1],
+#     [-1, -1, -1]
+# ], dtype=np.float32)
+# # Apply sharpening in float
+# sharpened_image = cv2.filter2D(
+#     image, cv2.CV_32F, sharpening_kernel
+# )
+# # Prevent values outside 0–255
+# sharpened_image = np.clip(
+#     sharpened_image, 0, 255
+# ).astype(np.uint8)
+# # Display
+# cv2.imshow("Original Image", image)
+# cv2.imshow("Gaussian Smoothed Image", smoothed_image)
+# cv2.imshow("Sharpened Image", sharpened_image)
+# cv2.namedWindow("Original Image", cv2.WINDOW_NORMAL)
+# cv2.namedWindow("Gaussian Smoothed Image", cv2.WINDOW_NORMAL)
+# cv2.namedWindow("Sharpened Image", cv2.WINDOW_NORMAL)
+# cv2.resizeWindow("Original Image", 600, 400)
+# cv2.resizeWindow("Gaussian Smoothed Image", 600, 400)
+# cv2.resizeWindow("Sharpened Image", 600, 400)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+#-----------------------------------------------------------------------------------------------------------
+# # Load the image
+# image = cv2.imread(r"E:\Marwadi\B.Tech\SEM 5\DSIP\Lab Manual\test.jpeg")
+# # Define the size of the Averaging filter kernel
+# kernel_size = (5, 5)
+# # Create the Averaging filter kernel
+# kernel = np.ones(kernel_size, dtype=np.float32) / (
+#     kernel_size[0] * kernel_size[1]
+# )
+# # Apply the Averaging filter for smoothing
+# smoothed_image = cv2.filter2D(image, -1, kernel)
+# # Resize only for display
+# display_size = (600, 400)
+# original_display = cv2.resize(image, display_size)
+# smoothed_display = cv2.resize(smoothed_image, display_size)
+# # Display the original and smoothed images
+# cv2.imshow("Original Image", original_display)
+# cv2.imshow("Averaging Filter Smoothed Image", smoothed_display)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+#-----------------------------------------------------------------------------------------------------------
+# # Load the image
+# image = cv2.imread(r"E:\Marwadi\B.Tech\SEM 5\DSIP\Lab Manual\test.jpeg")
+# # Define the size of the median filter kernel
+# # Kernel size should be an odd number
+# kernel_size = 5
+# # Apply the Median filter for smoothing
+# smoothed_image = cv2.medianBlur(image, kernel_size)
+# # Resize only for display
+# display_size = (600, 400)
+# original_display = cv2.resize(image, display_size)
+# smoothed_display = cv2.resize(smoothed_image, display_size)
+# # Display the original and smoothed images
+# cv2.imshow("Original Image", original_display)
+# cv2.imshow("Median Filter Smoothed Image", smoothed_display)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
+#-----------------------------------------------------------------------------------------------------------
+# Load the image
+# image = cv2.imread(r"E:\Marwadi\B.Tech\SEM 5\DSIP\Lab Manual\test.jpeg")
+# # Apply Gaussian smoothing to reduce noise
+# blurred_image = cv2.GaussianBlur(image, (5, 5), 0)
+# # Create a Laplacian kernel for sharpening
+# laplacian_kernel = np.array([
+#     [0, -1, 0],
+#     [-1, 5, -1],
+#     [0, -1, 0]
+# ], dtype=np.float32)
+# # Apply the Laplacian filter for sharpening
+# sharpened_image = cv2.filter2D(
+#     blurred_image, -1, laplacian_kernel
+# )
+# # Resize only for display
+# display_size = (600, 400)
+# original_display = cv2.resize(image, display_size)
+# blurred_display = cv2.resize(blurred_image, display_size)
+# sharpened_display = cv2.resize(sharpened_image, display_size)
+# # Display the original, blurred and sharpened images
+# cv2.imshow("Original Image", original_display)
+# cv2.imshow("Gaussian Blurred Image", blurred_display)
+# cv2.imshow("Sharpened Image", sharpened_display)
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
