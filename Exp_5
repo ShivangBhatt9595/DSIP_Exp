@@ -1,0 +1,104 @@
+import numpy as np
+import matplotlib.pyplot as plt
+signal = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+N = len(signal)
+# Compute FFT
+fft_result = np.fft.fft(signal)
+# Magnitude and phase spectrum
+magnitude_spectrum = np.abs(fft_result)
+phase_spectrum = np.angle(fft_result)
+# Compute IFFT
+reconstructed_signal = np.fft.ifft(fft_result)
+# Print results
+print("Original Signal:", signal)
+print("FFT Result:", fft_result)
+print("Magnitude Spectrum:", magnitude_spectrum)
+print("Phase Spectrum:", phase_spectrum)
+print("Reconstructed Signal:", np.real(reconstructed_signal))
+# Plot DIT butterfly diagram
+def butterfly(ax, inverse=False):
+    stages = int(np.log2(N))
+    bitrev = [int(format(i, '03b')[::-1], 2) for i in range(N)]
+    ax.set_title("8-Point Inverse DIT FFT" if inverse else "8-Point DIT FFT",
+                 fontsize=14, fontweight='bold', pad=18)
+    # Stage positions
+    xs = np.arange(stages + 1)
+    # Input labels
+    for i in range(N):
+        label = f"X({bitrev[i]})" if inverse else f"x({bitrev[i]})"
+        ax.text(-0.18, i, label, ha='right', va='center', fontsize=9)
+        ax.plot(0, i, 'ko', ms=4, zorder=3)
+    # Butterfly stages
+    for s in range(stages):
+        size = 2 ** (s + 1)
+        half = size // 2
+        for start in range(0, N, size):
+            for j in range(half):
+                a = start + j
+                b = a + half
+                x1, x2 = xs[s], xs[s+1]
+                # Connections
+                ax.plot([x1, x2], [a, a], color='black', lw=0.85)
+                ax.plot([x1, x2], [b, b], color='black', lw=0.85)
+                ax.plot([x1, x2], [a, b], color='black', lw=0.85)
+                ax.plot([x1, x2], [b, a], color='black', lw=0.85)
+                # Twiddle factor on the lower input branch
+                k = j * (N // size)
+                if inverse:
+                    factor = f"W₈^({k})"
+                else:
+                    factor = f"W₈^(-{k})"
+                ax.text(x1 + 0.5, (a+b)/2, factor,
+                        fontsize=7, ha='center', va='center',
+                        bbox=dict(facecolor='white', edgecolor='none', pad=1))
+                # Butterfly operation signs
+                ax.text(x2-0.08, a+0.10, '+', fontsize=8,
+                        ha='right', va='center')
+                ax.text(x2-0.08, b-0.10, '−', fontsize=8,
+                        ha='right', va='center')
+        # Nodes after each stage
+        for i in range(N):
+            ax.plot(xs[s+1], i, 'ko', ms=4, zorder=3)
+        ax.text(s+0.5, -0.55, f"Stage {s+1}",
+                ha='center', va='center', fontsize=10)
+    # Output labels
+    for i in range(N):
+        label = f"x({i})" if inverse else f"X({i})"
+        ax.text(stages+0.15, i, label, ha='left',
+                va='center', fontsize=9)
+    if inverse:
+        ax.text(stages+0.55, N/2, "÷ N", fontsize=10,
+                ha='center', va='center')
+    ax.set_xlim(-0.85, stages+0.85)
+    ax.set_ylim(N-0.5, -0.9)
+    ax.axis('off')
+# Signal plots
+fig1, axes = plt.subplots(2, 2, figsize=(12, 8))
+axes[0, 0].stem(np.arange(N), signal)
+axes[0, 0].set_title("Original Signal", pad=10)
+axes[0, 0].set_xlabel("Sample")
+axes[0, 0].set_ylabel("Amplitude")
+axes[0, 0].grid(True, alpha=0.4)
+axes[0, 1].stem(np.arange(N), magnitude_spectrum)
+axes[0, 1].set_title("Magnitude Spectrum", pad=10)
+axes[0, 1].set_xlabel("Frequency")
+axes[0, 1].set_ylabel("Magnitude")
+axes[0, 1].grid(True, alpha=0.4)
+axes[1, 0].stem(np.arange(N), phase_spectrum)
+axes[1, 0].set_title("Phase Spectrum", pad=10)
+axes[1, 0].set_xlabel("Frequency")
+axes[1, 0].set_ylabel("Phase (Radians)")
+axes[1, 0].grid(True, alpha=0.4)
+axes[1, 1].stem(np.arange(N), np.real(reconstructed_signal))
+axes[1, 1].set_title("Reconstructed Signal (IFFT)", pad=10)
+axes[1, 1].set_xlabel("Sample")
+axes[1, 1].set_ylabel("Amplitude")
+axes[1, 1].grid(True, alpha=0.4)
+fig1.tight_layout(pad=2.5)
+# Separate butterfly diagrams
+fig2, axes2 = plt.subplots(1, 2, figsize=(16, 9))
+butterfly(axes2[0], inverse=False)
+butterfly(axes2[1], inverse=True)
+fig2.subplots_adjust(left=0.08, right=0.95,
+                     top=0.85, bottom=0.08, wspace=0.45)
+plt.show()
