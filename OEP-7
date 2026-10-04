@@ -1,0 +1,96 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+# 1. CONTRAST STRETCHING
+def contrast_stretching(img):
+    min_val = np.min(img)
+    max_val = np.max(img)
+    if max_val == min_val:
+        return img
+    stretched = (
+        (img.astype(np.float32) - min_val)
+        / (max_val - min_val)
+    ) * 255
+    return np.uint8(stretched)
+
+# 2. GAMMA CORRECTION
+def gamma_correction(img, gamma):
+    normalized = img.astype(np.float32) / 255.0
+    corrected = np.power(normalized, gamma)
+    return np.uint8(corrected * 255)
+
+# 3. LOG TRANSFORMATION
+def log_transformation(img):
+    # Mild Gaussian filtering to reduce noise
+    denoised = cv2.GaussianBlur(img, (3, 3), 0)
+    # Convert image to floating point
+    img_float = denoised.astype(np.float32)
+    # Log transformation
+    c = 255 / np.log1p(np.max(img_float))
+    transformed = c * np.log1p(img_float)
+    return np.uint8(transformed)
+
+# LOAD FIVE DEGRADED IMAGES
+
+image_files = [
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\Image 1.png",
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\Image 2.png",
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\Image 3.png",
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\Image 4.png",
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\Image 5.png"
+]
+images = []
+for file in image_files:
+    img = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+    if img is None:
+        print("Error: Could not read", file)
+    else:
+        images.append(img)
+
+# APPLY SUITABLE TRANSFORMATIONS
+
+# Image 1 - Contrast Stretching
+enhanced1 = contrast_stretching(images[0])
+
+# Image 2 - Histogram Equalization
+enhanced2 = cv2.equalizeHist(images[1])
+
+# Image 3 - Gamma Correction
+enhanced3 = gamma_correction(images[2], 0.8)
+
+# Image 4 - Log Transformation
+# Mild Gaussian Blur used as preprocessing
+enhanced4 = log_transformation(images[3])
+
+# Image 5 - Contrast Stretching
+enhanced5 = contrast_stretching(images[4])
+
+# STORE RESULTS
+
+results = [
+    ("Image 1 - Contrast Stretching", images[0], enhanced1),
+    ("Image 2 - Histogram Equalization", images[1], enhanced2),
+    ("Image 3 - Gamma Correction", images[2], enhanced3),
+    ("Image 4 - Log Transformation", images[3], enhanced4),
+    ("Image 5 - Contrast Stretching", images[4], enhanced5)
+]
+
+# DISPLAY ORIGINAL AND ENHANCED IMAGES
+
+for title, original, enhanced in results:
+    plt.figure(figsize=(10, 5))
+    # Original
+    plt.subplot(1, 2, 1)
+    plt.imshow(original, cmap="gray")
+    plt.title("Original")
+    plt.axis("off")
+    # Enhanced
+    plt.subplot(1, 2, 2)
+    plt.imshow(enhanced, cmap="gray")
+    plt.title("Enhanced")
+    plt.axis("off")
+    plt.suptitle(title, fontsize=14)
+    plt.tight_layout()
+    plt.show()
