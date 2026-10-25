@@ -1,0 +1,191 @@
+import librosa
+import librosa.display
+import numpy as np
+import matplotlib.pyplot as plt
+import soundfile as sf
+from scipy.signal import butter, sosfiltfilt
+import os
+import subprocess
+import lameenc 
+
+#------------------------------------Q3-a------------------------------------
+
+# # 1. Load Audio File
+# filename = r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\Only_Mine_Song.wav"  
+
+# y, sr = librosa.load(filename, sr=None, mono=True)
+
+# print(f"Sample Rate: {sr} Hz")
+# print(f"Duration: {len(y)/sr:.2f} seconds")
+
+# # 2. Design Low-Pass Butterworth Filter
+# def lowpass_filter(data, cutoff, fs, order=6):
+#     sos = butter(
+#         order,
+#         cutoff,
+#         btype='lowpass',
+#         fs=fs,
+#         output='sos'
+#     )
+#     return sosfiltfilt(sos, data)
+
+# # 3. Plot Spectrogram
+# def plot_spectrogram(signal, sr, title):
+#     D = librosa.stft(signal, n_fft=4096, hop_length=512)
+
+#     D_db = librosa.amplitude_to_db(
+#         np.abs(D),
+#         ref=np.max
+#     )
+
+#     plt.figure(figsize=(12, 5))
+
+#     librosa.display.specshow(
+#         D_db,
+#         sr=sr,
+#         hop_length=512,
+#         x_axis='time',
+#         y_axis='linear',
+#         cmap='viridis'
+#     )
+
+#     plt.ylim(0, min(5000, sr / 2))
+#     plt.colorbar(format='%+2.0f dB')
+#     plt.title(title)
+#     plt.xlabel('Time (seconds)')
+#     plt.ylabel('Frequency (Hz)')
+#     plt.tight_layout()
+#     plt.show()
+
+# # 4. Display Original Audio Spectrogram
+# plot_spectrogram(y, sr, 'Original Audio Spectrogram')
+
+# # 5. Apply Three Different Cutoff Frequencies
+# cutoff_frequencies = [500, 1500, 4000]
+# filtered_results = {}
+
+# for cutoff in cutoff_frequencies:
+
+#     if cutoff >= sr / 2:
+#         print(f"Skipping {cutoff} Hz: exceeds Nyquist frequency.")
+#         continue
+
+#     filtered_audio = lowpass_filter(y, cutoff, sr)
+#     filtered_results[cutoff] = filtered_audio
+
+#     # Save Filtered Audio
+#     output_file = f'lowpass_{cutoff}Hz.wav'
+#     sf.write(output_file, filtered_audio, sr)
+
+#     print(f"Saved: {output_file}")
+
+#     # Display Spectrogram
+#     plot_spectrogram(
+#         filtered_audio,
+#         sr,
+#         f'Low-Pass Filter Spectrogram - Cutoff {cutoff} Hz'
+#     )
+
+# # 6. Final Results
+# print("\nExperiment completed successfully!")
+# print("Cutoff frequencies tested:")
+
+# for cutoff in filtered_results:
+#     print(f"{cutoff} Hz")
+
+# print("\nGenerated files:")
+# for cutoff in filtered_results:
+#     print(f"lowpass_{cutoff}Hz.wav")
+
+
+#------------------------------------Q3-b------------------------------------
+
+# #Load Audio File
+# filename = r"E:\Marwadi\B.Tech\SEM 5\DSIP\Open Ended Question\Only_Mine_Song.wav"  
+# if not os.path.exists(filename):
+#     raise FileNotFoundError("Please check your MP3 file path.")
+# y, sr = librosa.load(filename, sr=None, mono=True)
+# print(f"Sample Rate: {sr} Hz")
+# print(f"Duration: {len(y)/sr:.2f} seconds")
+# # 2. Design Band-Pass Filter
+# def bandpass_filter(data, lowcut, highcut, fs, order=6):
+#     sos = butter(
+#         order,
+#         [lowcut, highcut],
+#         btype='bandpass',
+#         fs=fs,
+#         output='sos'
+#     )
+#     return sosfiltfilt(sos, data)
+# # 3. Extract Vocal-Focused Frequency Range
+# lowcut = 300
+# highcut = min(3400, (sr / 2) * 0.95)
+# vocal_band = bandpass_filter(y, lowcut, highcut, sr)
+# # Estimate Background by Subtracting Filtered Signal
+# background_band = y - vocal_band
+# # 4. Save WAV Files
+# sf.write('vocal_focused.wav', vocal_band, sr)
+# sf.write('estimated_background.wav', background_band, sr)
+# print("WAV files saved successfully.")
+# # 5. Convert Audio to MP3 Without FFmpeg
+# def save_mp3(signal, fs, filename, bitrate=192):
+#     signal = np.asarray(signal, dtype=np.float32)
+#     # Prevent clipping
+#     peak = np.max(np.abs(signal))
+#     if peak > 0.999:
+#         signal = signal * (0.999 / peak)
+#     # Convert audio to 16-bit PCM
+#     pcm_data = (signal * 32767).astype(np.int16)
+#     encoder = lameenc.Encoder()
+#     encoder.set_bit_rate(bitrate)
+#     encoder.set_in_sample_rate(fs)
+#     encoder.set_channels(1)
+#     encoder.set_quality(2)
+#     mp3_data = encoder.encode(pcm_data.tobytes())
+#     mp3_data += encoder.flush()
+#     with open(filename, 'wb') as f:
+#         f.write(mp3_data)
+#     print(f"Saved: {filename}")
+# save_mp3(vocal_band, sr, 'vocal_focused.mp3')
+# save_mp3(background_band, sr, 'estimated_background.mp3')
+# # 6. Display Spectrograms
+# def plot_spectrogram(signal, sr, title):
+#     D = librosa.stft(signal, n_fft=2048, hop_length=512)
+#     D_db = librosa.amplitude_to_db(
+#         np.abs(D),
+#         ref=np.max
+#     )
+#     plt.figure(figsize=(12, 4))
+#     librosa.display.specshow(
+#         D_db,
+#         sr=sr,
+#         hop_length=512,
+#         x_axis='time',
+#         y_axis='hz',
+#         cmap='viridis'
+#     )
+#     plt.ylim(0, min(5000, sr / 2))
+#     plt.colorbar(format='%+2.0f dB')
+#     plt.title(title)
+#     plt.xlabel('Time (seconds)')
+#     plt.ylabel('Frequency (Hz)')
+#     plt.tight_layout()
+#     plt.show()
+# plot_spectrogram(y, sr, 'Original Audio Spectrogram')
+# plot_spectrogram(
+#     vocal_band,
+#     sr,
+#     'Vocal-Focused Audio (300–3400 Hz)'
+# )
+# plot_spectrogram(
+#     background_band,
+#     sr,
+#     'Estimated Background Audio'
+# )
+# # 7. Final Output
+# print("\nExperiment completed successfully!")
+# print("Generated files:")
+# print("- vocal_focused.wav")
+# print("- estimated_background.wav")
+# print("- vocal_focused.mp3")
+# print("- estimated_background.mp3")
