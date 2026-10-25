@@ -1,0 +1,73 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import firwin, freqz
+
+#---------------------------------------Q-1---------------------------------------
+# Fs = 10000
+# Fc = 3000
+# N = 31
+# h = firwin(N, Fc, fs=Fs, window='hamming', pass_zero='lowpass')
+# print("FIR Low-Pass Filter Coefficients:")
+# print(h)
+# f, H = freqz(h, worN=1024, fs=Fs)
+# plt.figure(figsize=(10, 5))
+# plt.plot(f, 20 * np.log10(np.maximum(np.abs(H), 1e-10)))
+# plt.title("FIR Low-Pass Filter (Fc = 3 kHz, N = 31)")
+# plt.xlabel("Frequency (Hz)")
+# plt.ylabel("Magnitude (dB)")
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+
+#---------------------------------------Q-2---------------------------------------
+# Fs = 10000
+# Fc = 3000
+# N = 31
+# h = firwin(N, Fc, fs=Fs, window='hamming', pass_zero='highpass')
+# print("FIR High-Pass Filter Coefficients:")
+# print(h)
+# f, H = freqz(h, worN=1024, fs=Fs)
+# plt.figure(figsize=(10, 5))
+# plt.plot(f, 20 * np.log10(np.maximum(np.abs(H), 1e-10)))
+# plt.title("FIR High-Pass Filter (Fc = 3 kHz, N = 31)")
+# plt.xlabel("Frequency (Hz)")
+# plt.ylabel("Magnitude (dB)")
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+
+#---------------------------------------Q-3---------------------------------------
+# Fs = 10000
+# F1 = 3000
+# F2 = 4500
+# N = 31
+# h = firwin(N, [F1, F2], fs=Fs, window='hamming', pass_zero='bandpass')
+# print("FIR Band-Pass Filter Coefficients:")
+# print(h)
+# f, H = freqz(h, worN=1024, fs=Fs)
+# plt.figure(figsize=(10, 5))
+# plt.plot(f, 20 * np.log10(np.maximum(np.abs(H), 1e-10)))
+# plt.title("FIR Band-Pass Filter (3–4.5 kHz, N = 31)")
+# plt.xlabel("Frequency (Hz)")
+# plt.ylabel("Magnitude (dB)")
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
+
+#---------------------------------------Q-4---------------------------------------
+# Fs = 10000
+# F1 = 3000
+# F2 = 4500
+# N = 31
+# h = firwin(N, [F1, F2], fs=Fs, window='hamming', pass_zero='bandstop')
+# print("FIR Band-Stop Filter Coefficients:")
+# print(h)
+# f, H = freqz(h, worN=1024, fs=Fs)
+# plt.figure(figsize=(10, 5))
+# plt.plot(f, 20 * np.log10(np.maximum(np.abs(H), 1e-10)))
+# plt.title("FIR Band-Stop Filter (3–4.5 kHz, N = 31)")
+# plt.xlabel("Frequency (Hz)")
+# plt.ylabel("Magnitude (dB)")
+# plt.grid(True)
+# plt.tight_layout()
+# plt.show()
