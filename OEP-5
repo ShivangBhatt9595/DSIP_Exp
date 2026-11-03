@@ -1,0 +1,85 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.ndimage import generic_filter
+import os
+# 1. Define image paths
+image_files = [
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\OEP 5\image1.png",
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\OEP 5\image2.png",
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\OEP 5\image3.png",
+    r"E:\Marwadi\B.Tech\SEM 5\DSIP\OEP 5\image4.png"
+]
+# 2. Define Alpha-Trimmed Mean Filter
+def alpha_trimmed_filter(img, size=5, d=10):
+    def trim_mean(values):
+        values = np.sort(values)
+        values = values[d // 2:len(values) - d // 2]
+        return np.mean(values)
+    result = generic_filter(
+        img, trim_mean, size=size, mode='reflect'
+    )
+    return np.uint8(np.clip(result, 0, 255))
+# 3. Process each image
+for index, file in enumerate(image_files):
+    image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        print("Error: Could not read", file)
+        continue
+    # 4. Apply Median Filters
+    median3 = cv2.medianBlur(image, 3)
+    median5 = cv2.medianBlur(image, 5)
+    median7 = cv2.medianBlur(image, 7)
+    # 5. Apply Alpha-Trimmed Mean Filter
+    alpha_trimmed = alpha_trimmed_filter(image, 5, 10)
+    # 6. Apply Bilateral Filter
+    bilateral = cv2.bilateralFilter(
+        image, 9, 50, 50
+    )
+    # 7. Apply Morphological Filters
+    kernel = np.ones((3, 3), np.uint8)
+
+    opening = cv2.morphologyEx(
+        image, cv2.MORPH_OPEN, kernel
+    )
+    closing = cv2.morphologyEx(
+        image, cv2.MORPH_CLOSE, kernel
+    )
+    # 8. Store all results
+    results = [
+        ("Original Image", image),
+        ("Median 3x3", median3),
+        ("Median 5x5", median5),
+        ("Median 7x7", median7),
+        ("Alpha-Trimmed Mean", alpha_trimmed),
+        ("Bilateral Filter", bilateral),
+        ("Morphological Opening", opening),
+        ("Morphological Closing", closing)
+    ]
+    # 9. Display comparison
+    plt.figure(figsize=(14, 10))
+    for i, (title, output) in enumerate(results):
+
+        plt.subplot(3, 3, i + 1)
+        plt.imshow(output, cmap='gray', vmin=0, vmax=255)
+        plt.title(title)
+        plt.axis('off')
+    plt.suptitle(
+        f"Image {index + 1} - Non-Linear Filtering",
+        fontsize=16
+    )
+    plt.tight_layout()
+    plt.show()
+    # 10. Save filtered results
+    output_folder = os.path.join(
+        os.path.dirname(file),
+        f"Image_{index + 1}_Results"
+    )
+    os.makedirs(output_folder, exist_ok=True)
+    for title, output in results[1:]:
+        filename = title.replace(" ", "_") + ".png"
+        cv2.imwrite(
+            os.path.join(output_folder, filename),
+            output
+        )
+    print(f"Image {index + 1} processed successfully.")
