@@ -1,0 +1,154 @@
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+import csv
+# 1. Define image paths
+folder = r"E:\Marwadi\B.Tech\SEM 5\DSIP\OEP 10"
+image_files = [
+    os.path.join(folder, f"image{i}.png")
+    for i in range(1, 6)
+]
+# 2. Create output folder
+output_folder = os.path.join(folder, "Results")
+os.makedirs(output_folder, exist_ok=True)
+# 3. Gaussian Low-Pass Filter
+def gaussian_lpf(D, D0):
+    return np.exp(-(D**2) / (2 * D0**2))
+# 4. Butterworth Low-Pass Filter
+def butterworth_lpf(D, D0, order=2):
+    return 1 / (1 + (D / D0)**(2 * order))
+# 5. Frequency-domain filtering
+def frequency_filter(image, H):
+    F = np.fft.fftshift(np.fft.fft2(image))
+    filtered = F * H
+    result = np.real(
+        np.fft.ifft2(np.fft.ifftshift(filtered))
+    )
+    return np.clip(result, 0, 255).astype(np.uint8)
+# 6. Quantitative measurements
+def calculate_metrics(image, processed, edges):
+    original_energy = np.sum(
+        np.abs(np.fft.fft2(image))**2
+    )
+    processed_energy = np.sum(
+        np.abs(np.fft.fft2(processed))**2
+    )
+    hf_ratio = processed_energy / (original_energy + 1e-10)
+    sharpness = cv2.Laplacian(
+        processed, cv2.CV_64F
+    ).var()
+    edge_density = np.count_nonzero(edges) / edges.size
+    return hf_ratio, sharpness, edge_density
+# 7. Process all images
+metrics_data = []
+for index, file in enumerate(image_files):
+    image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+    if image is None:
+        print("Image not found:", file)
+        continue
+    M, N = image.shape
+    # Create frequency distance matrix
+    u, v = np.meshgrid(
+        np.arange(N) - N // 2,
+        np.arange(M) - M // 2
+    )
+    D = np.sqrt(u**2 + v**2)
+    # 8. Create frequency-domain filters
+    D0 = min(M, N) * 0.12
+    GLPF = gaussian_lpf(D, D0)
+    BLPF = butterworth_lpf(D, D0, order=2)
+    # 9. Apply smoothing filters
+    gaussian_smooth = frequency_filter(image, GLPF)
+    butterworth_smooth = frequency_filter(image, BLPF)
+    # 10. Frequency-domain high-boost sharpening
+    F = np.fft.fftshift(
+        np.fft.fft2(gaussian_smooth)
+    )
+    A = 1.5
+    high_boost_filter = 1 + A * (1 - GLPF)
+    sharpened = np.real(
+        np.fft.ifft2(
+            np.fft.ifftshift(F * high_boost_filter)
+        )
+    )
+    sharpened = np.clip(
+        sharpened, 0, 255
+    ).astype(np.uint8)
+    # 11. Extract boundaries using Canny
+    median_value = np.median(sharpened)
+    lower = int(max(0, 0.66 * median_value))
+    upper = int(min(255, 1.33 * median_value))
+    edges = cv2.Canny(
+        sharpened, lower, upper
+    )
+    # 12. Improve boundary continuity
+    kernel = np.ones((3, 3), np.uint8)
+
+    boundaries = cv2.morphologyEx(
+        edges, cv2.MORPH_CLOSE, kernel
+    )
+    # 13. Display results
+    results = [
+        ("Original Image", image),
+        ("Gaussian LPF", gaussian_smooth),
+        ("Butterworth LPF", butterworth_smooth),
+        ("High-Boost Sharpening", sharpened),
+        ("Binary Boundaries", boundaries)
+    ]
+    plt.figure(figsize=(15, 7))
+    for i, (title, output) in enumerate(results):
+        plt.subplot(2, 3, i + 1)
+        plt.imshow(output, cmap='gray', vmin=0, vmax=255)
+        plt.title(title)
+        plt.axis('off')
+    plt.suptitle(
+        f"Image {index + 1} - Frequency Domain Processing",
+        fontsize=15
+    )
+    plt.tight_layout()
+    plt.show()
+    # 14. Save processed images
+    for title, output in results[1:]:
+        name = title.replace(" ", "_") + ".png"
+        cv2.imwrite(
+            os.path.join(
+                output_folder,
+                f"Image_{index + 1}_{name}"
+            ),
+            output
+        )
+    # 15. Calculate measurements
+    for name, output in [
+        ("Gaussian LPF", gaussian_smooth),
+        ("Butterworth LPF", butterworth_smooth),
+        ("High-Boost", sharpened)
+    ]:
+        hf, sharpness, density = calculate_metrics(
+            image, output, boundaries
+        )
+        metrics_data.append([
+            f"Image {index + 1}",
+            name,
+            round(hf, 4),
+            round(sharpness, 2),
+            round(density * 100, 2)
+        ])
+    print(f"Image {index + 1} processed successfully.")
+# 16. Save quantitative comparison
+csv_path = os.path.join(
+    output_folder, "Filter_Comparison.csv"
+)
+with open(csv_path, "w", newline="") as file:
+    writer = csv.writer(file)
+    writer.writerow([
+        "Image",
+        "Filter",
+        "Energy Ratio",
+        "Laplacian Variance",
+        "Boundary Density (%)"
+    ])
+    writer.writerows(metrics_data)
+print("\nAll images processed successfully!")
+print("Results saved in:", output_folder)
+print("Quantitative comparison saved in:", csv_path)
